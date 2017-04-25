@@ -25,7 +25,7 @@ from __future__ import absolute_import, division, print_function
 import os
 
 import pkg_resources
-from mock import patch
+from mock import MagicMock, patch
 from shutil import rmtree
 from tempfile import mkdtemp
 
@@ -36,7 +36,7 @@ from inspirehep.modules.workflows.tasks.arxiv import (
     arxiv_derive_inspire_categories
 )
 
-from mocks import AttrDict, MockEng, MockFiles, MockObj
+from mocks import MockEng, MockFiles, MockObj
 
 
 def test_arxiv_derive_inspire_categories():
@@ -181,13 +181,13 @@ def test_arxiv_author_list_handles_auto_ignore_comment(mock_os):
         ],
     }  # record/1519995
     extra_data = {}
+
+    mock_file = MagicMock()
+    mock_file.file.uri = filename
     files = MockFiles({
-        '1703.09986.tar.gz': AttrDict({
-            'file': AttrDict({
-                'uri': filename,
-            })
-        })
+        '1703.09986.tar.gz': mock_file
     })
+
     assert validate(data['arxiv_eprints'], subschema) is None
 
     obj = MockObj(data, extra_data, files)

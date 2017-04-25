@@ -43,12 +43,6 @@ class MockObj(object):
         self.log = MockLog()
 
 
-class AttrDict(dict):
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
-
-
 class MockFiles(object):
     def __init__(self, data):
         self.data = data

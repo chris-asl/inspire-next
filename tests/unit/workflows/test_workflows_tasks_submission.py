@@ -23,7 +23,7 @@
 from __future__ import absolute_import, division, print_function
 
 from flask import current_app
-from mock import patch
+from mock import MagicMock, patch
 
 from inspirehep.modules.workflows.tasks.submission import (
     add_note_entry,
@@ -31,7 +31,7 @@ from inspirehep.modules.workflows.tasks.submission import (
     prepare_files,
 )
 
-from mocks import AttrDict, MockEng, MockFiles, MockObj, MockUser
+from mocks import MockEng, MockFiles, MockObj, MockUser
 
 
 class StubRTInstance(object):
@@ -114,14 +114,11 @@ def test_add_note_entry_does_not_add_value_that_is_already_present():
 def test_prepare_files():
     data = {}
     extra_data = {}
+
+    mock_pdf = MagicMock()
+    mock_pdf.obj.file.uri = '/data/foo.pdf'
     files = MockFiles({
-        'foo.pdf': AttrDict({
-            'obj': AttrDict({
-                'file': AttrDict({
-                    'uri': '/data/foo.pdf',
-                }),
-            }),
-        }),
+        'foo.pdf': mock_pdf
     })
 
     obj = MockObj(data, extra_data, files)
@@ -149,14 +146,11 @@ def test_prepare_files_annotates_files_from_arxiv():
         ],
     }
     extra_data = {}
+
+    mock_pdf = MagicMock()
+    mock_pdf.obj.file.uri = '/data/foo.pdf'
     files = MockFiles({
-        'foo.pdf': AttrDict({
-            'obj': AttrDict({
-                'file': AttrDict({
-                    'uri': '/data/foo.pdf',
-                }),
-            }),
-        }),
+        'foo.pdf': mock_pdf
     })
 
     obj = MockObj(data, extra_data, files)
@@ -184,7 +178,7 @@ def test_prepare_files_skips_empty_files():
     data = {}
     extra_data = {}
     files = MockFiles({
-        'foo.pdf': AttrDict({}),
+        'foo.pdf': {}
     })
 
     obj = MockObj(data, extra_data, files)
@@ -213,14 +207,11 @@ def test_prepare_files_does_nothing_when_obj_has_no_files():
 def test_prepare_files_ignores_keys_not_ending_with_pdf():
     data = {}
     extra_data = {}
+
+    mock_file = MagicMock()
+    mock_file.obj.file.uri = '/data/foo.pdf'
     files = MockFiles({
-        'foo.bar': AttrDict({
-            'obj': AttrDict({
-                'file': AttrDict({
-                    'uri': '/data/foo.pdf',
-                }),
-            }),
-        }),
+        'foo.bar': mock_file
     })
 
     obj = MockObj(data, extra_data, files)
