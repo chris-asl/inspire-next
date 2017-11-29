@@ -204,6 +204,10 @@
                             "analyzer": "author_name_analyzer",
                             "copy_to": "facet_author_name",
                             "fields": {
+                                "search": {
+                                    "analyzer": "author_name_search_analyzer",
+                                    "type": "string"
+                                },
                                 "raw": {
                                     "index": "not_analyzed",
                                     "type": "string"
@@ -1077,6 +1081,11 @@
                         "icu_folding"
                     ],
                     "tokenizer": "icu_tokenizer",
+                    "type": "custom"
+                },
+                "author_name_search_analyzer": {
+                    "filter": ["icu_folding"],
+                    "tokenizer": "lowercase",
                     "type": "custom"
                 },
                 "lowercase_analyzer": {
