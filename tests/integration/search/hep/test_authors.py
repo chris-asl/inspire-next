@@ -44,6 +44,7 @@ def _query_and_retrieve_control_numbers(client, query_string):
 
 @parametrize(
     {
+        # One lastname, one non lastname
         # All query variations for one firstname - one lastname query.
         'Lastname, Firstname': {'query_str': 'Mele, Salvatore', 'expected_recids': {1497857, 1507918, 578814}},
         'Firstname Lastname': {'query_str': 'Salvatore Mele', 'expected_recids': {1497857, 1507918, 578814}},
@@ -70,7 +71,7 @@ def _query_and_retrieve_control_numbers(client, query_string):
         'transliterate(lastname)': {'query_str': 'muller', 'expected_recids': {1633763, 1618250, 850589}},
 
 
-        # All query variations for single lastname and initial(Firstname)
+        # All query variations for single lastname and initial(firstname)
         'Lastname, initial(Firstname)': {
             'query_str': 'Mele, S', 'expected_recids': {1497857, 1507918, 578814, 832224}
         },
@@ -84,6 +85,8 @@ def _query_and_retrieve_control_numbers(client, query_string):
             'query_str': 'S. Mele', 'expected_recids': {1497857, 1507918, 578814, 832224}
         },
 
+        # All query variations with single lastname and initial(firstname) in unicode form and its transliterated
+        # version
         'uLastname, initial(Firstname)': {
             'query_str': u'Müller, T', 'expected_recids': {1633763, 1618250}
         },
@@ -108,6 +111,76 @@ def _query_and_retrieve_control_numbers(client, query_string):
         'initial(Firstname). transliterate(Lastname)': {
             'query_str': 'T. Muller', 'expected_recids': {1633763, 1618250}
         },
+
+        # TODO we can improve and not match the latter one (contains Garcia A)
+        # 'Garcia, Alfonso': {
+        #     'query_str': 'Garcia, Alfonso', 'expected_recids': {1633763, 1618250}
+        # },
+
+        # Multiple lastnames
+        # Queries with all lastnames
+        'all(Lastnames), Firstname': {
+            'query_str': 'Garcia-Sciveres, Maurice', 'expected_recids': {1601506, 1508016, 1510725}
+        },
+        'Firstname all(Lastnames)': {
+            'query_str': 'Maurice Garcia-Sciveres', 'expected_recids': {1601506, 1508016, 1510725}
+        },
+        'all(Lastnames) Firstname': {
+            'query_str': 'Garcia-Sciveres Maurice', 'expected_recids': {1601506, 1508016, 1510725}
+        },
+
+        # Single Lastname queries
+        'first(Lastname), Firstname': {
+            'query_str': 'Garcia, Maurice', 'expected_recids': {1601506, 1508016, 1510725}
+        },
+        'Firstname first(Lastname)': {
+            'query_str': 'Maurice Garcia', 'expected_recids': {1601506, 1508016, 1510725}
+        },
+        'first(Lastname) Firstname': {
+            'query_str': 'Garcia Maurice', 'expected_recids': {1601506, 1508016, 1510725}
+        },
+
+        # TODO currently it does not match (but when we add the 2nd lastname variations it will.
+        # The latter record below matches as it contains an author called `Vizan Garcia, Jesus Manuel` (so it has both
+        # `Garcia` and `M`). Additionally, the name variations of this author contain the entry `Garcia, M` which is
+        # needed to be able to support searching with 2nd lastname of authors.
+
+        'first(Lastname), initial(Firstname)': {
+            'query_str': 'Garcia, M', 'expected_recids': {1601506, 1508016, 1510725}
+        },
+        'initial(Firstname) first(Lastname)': {
+            'query_str': 'M Garcia', 'expected_recids': {1601506, 1508016, 1510725}
+        },
+        'first(Lastname) initial(Firstname)': {
+            'query_str': 'Garcia M', 'expected_recids': {1601506, 1508016, 1510725}
+        },
+
+        # In order to make the below queries work, I've added name variations which contain not only the first
+        # lastname, but the others, as well.
+        # This resulted in records where the 2nd lastname was "Garcia" and a firstname was "Manuel", thus a "Garcia, M"
+        # variation was generated, which entailed one more record getting matched above.
+        # The explanation for this is above.
+        # So, the solution was to add min_score = 0.1 in the queries. We need to investigate whether this is ok.
+        #
+        # 'second(Lastname), Firstname': {
+        #     'query_str': 'Sciveres, Maurice', 'expected_recids': {1601506, 1508016, 1510725}
+        # },
+        # 'Firstname second(Lastname)': {
+        #     'query_str': 'Maurice Sciveres', 'expected_recids': {1601506, 1508016, 1510725}
+        # },
+        # 'second(Lastname) Firstname': {
+        #     'query_str': 'Sciveres Maurice', 'expected_recids': {1601506, 1508016, 1510725}
+        # },
+        #
+        # 'second(Lastname), initial(Firstname)': {
+        #     'query_str': 'Sciveres, M', 'expected_recids': {1601506, 1508016, 1510725}
+        # },
+        # 'initial(Firstname) second(Lastname)': {
+        #     'query_str': 'M Sciveres', 'expected_recids': {1601506, 1508016, 1510725}
+        # },
+        # 'second(Lastname) initial(Firstname)': {
+        #     'query_str': 'Sciveres M', 'expected_recids': {1601506, 1508016, 1510725}
+        # },
 
     }
 )
